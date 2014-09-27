@@ -1,6 +1,11 @@
 module.exports = {
   // port to listen on
-  port: 8085,
+  port: 443,
+
+  ssl: {
+    privateKey: '/your/privateKey/path',
+    certificate: '/your/certificate/path'
+  },
 
   proxyTo: {
     host: 'localhost',

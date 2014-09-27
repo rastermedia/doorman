@@ -13,6 +13,8 @@ var Proxy = require('./lib/proxy');
 var github = require('./lib/modules/github');
 var google = require('./lib/modules/google');
 var password = require('./lib/modules/password');
+var crypto = require('crypto');
+var fs = require('fs');
 global.log = require('./lib/winston');
 
 var proxy = new Proxy(conf.proxyTo.host, conf.proxyTo.port);
@@ -110,6 +112,13 @@ everyauth.everymodule.moduleErrback(function(err, data) {
 });
 
 var server = http.createServer(app);
+
+var privateKey = fs.readFileSync(conf.ssl.privateKey).toString();
+var certificate = fs.readFileSync(conf.ssl.certificate).toString();
+
+var credentials = crypto.createCredentials({key: privateKey, cert: certificate});
+
+server.setSecure(credentials);
 
 // WebSockets are also authenticated
 server.on('upgrade', function(req, socket, head) {
