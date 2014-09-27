@@ -13,7 +13,7 @@ var Proxy = require('./lib/proxy');
 var github = require('./lib/modules/github');
 var google = require('./lib/modules/google');
 var password = require('./lib/modules/password');
-var crypto = require('crypto');
+var https = require('https');
 var fs = require('fs');
 global.log = require('./lib/winston');
 
@@ -111,14 +111,12 @@ everyauth.everymodule.moduleErrback(function(err, data) {
   data.res.render('error.jade', { pageTitle: 'Sorry, there was an error.', error: "Perhaps something is misconfigured, or the provider is down." });
 });
 
-var server = http.createServer(app);
+var options = {
+  key: fs.readFileSync(conf.ssl.privateKey),
+  cert: fs.readFileSync(conf.ssl.certificate)
+};
 
-var privateKey = fs.readFileSync(conf.ssl.privateKey).toString();
-var certificate = fs.readFileSync(conf.ssl.certificate).toString();
-
-var credentials = crypto.createCredentials({key: privateKey, cert: certificate});
-
-server.setSecure(credentials);
+var server = https.createServer(options, app);
 
 // WebSockets are also authenticated
 server.on('upgrade', function(req, socket, head) {
